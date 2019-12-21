@@ -1,0 +1,125 @@
+﻿<UserControl x:Class="Components.Progress"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:infra="clr-namespace:Components.Infra" 
+             x:Name="ProgressControl"
+             mc:Ignorable="d" MinWidth="400">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Themes/Generic.xaml" />
+                <ResourceDictionary>
+                    <infra:BooleanToHiddenConverter x:Key="BooleanToHiddenConverter" />
+                    <Style TargetType="{x:Type ProgressBar}">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ProgressBar">
+                                    <Border BorderThickness="0" Background="{TemplateBinding Background}" CornerRadius="0" Padding="0">
+                                        <Grid x:Name="PART_Track">
+                                            <Rectangle x:Name="PART_Indicator" HorizontalAlignment="Left" Fill="{DynamicResource PrimaryColor}" />
+                                        </Grid>
+                                    </Border>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                        <Setter Property="Background" Value="AliceBlue" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding SubOperationRunning}" Value="True" >
+                                <Setter Property="Background" Value="Black" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </ResourceDictionary>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <DockPanel>
+        <DockPanel Dock="Top">
+            <DockPanel.Style>
+                <Style TargetType="DockPanel">
+                    <Setter Property="Visibility" Value="Hidden"></Setter>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding State}" Value="1">
+                            <Setter Property="Visibility" Value="Visible" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding State}" Value="2">
+                            <Setter Property="Visibility" Value="Visible" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding State}" Value="3">
+                            <Setter Property="Visibility" Value="Visible" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </DockPanel.Style>
+            <TextBlock DockPanel.Dock="Top" Margin="5">
+                <TextBlock.Style>
+                    <Style TargetType="TextBlock">
+                        <Setter Property="Text" Value="{Binding Title}" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding State}" Value="2">
+                                <Setter Property="Text" Value="{Binding ElementName=ProgressControl, Path=PausedText}" />
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding State}" Value="3">
+                                <Setter Property="Text" Value="{Binding ElementName=ProgressControl, Path=FinishedText}" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBlock.Style>
+            </TextBlock>
+            <Grid DockPanel.Dock="Top">
+                <ProgressBar Height="7" Margin="5" Value="{Binding Value}" DockPanel.Dock="Top">
+
+                </ProgressBar>
+            </Grid>
+            
+            <TextBlock DockPanel.Dock="Top" Visibility="{Binding ShowProgressInfo, Converter={StaticResource BooleanToHiddenConverter} }" Margin="5">
+                <Run Text="{Binding ElementName=ProgressControl, Path=DownloadedText}"/>
+                <Run Text="{Binding Progress}"/>,
+
+                <Run Text="{Binding ElementName=ProgressControl, Path=SpeedText}"/>
+                <Run Text="{Binding Speed}"/><TextBlock Text="," Visibility="{Binding ShowTime, Converter={StaticResource BooleanToHiddenConverter}}"/>
+
+                <TextBlock Visibility="{Binding ShowTime, Converter={StaticResource BooleanToHiddenConverter}}" Text="{Binding ElementName=ProgressControl, Path=TimeText}"/>
+                <TextBlock Visibility="{Binding ShowTime, Converter={StaticResource BooleanToHiddenConverter}}" Text="{Binding Time}"/>
+            </TextBlock>
+        </DockPanel>
+        <Button 
+            Command="{Binding StartCommand}" 
+            Padding="5 2 5 2" 
+            Margin="5" 
+            Background="White" 
+            HorizontalAlignment="Right" 
+            VerticalAlignment="Top">
+            <Button.Resources>
+                <Style TargetType="Border">
+                    <Setter Property="CornerRadius" Value="3"/>
+                </Style>
+            </Button.Resources>
+            <Button.Style>
+
+                <Style TargetType="Button">
+                    <Setter Property="Foreground" Value="{Binding ElementName=ProgressControl, Path=Foreground}"></Setter>
+                    <Setter Property="Content" Value=""/>
+                    <Setter Property="Visibility" Value="Visible"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding State}" Value="0">
+                            <Setter Property="Content" Value="{Binding ElementName=ProgressControl, Path=StartText}" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding State}" Value="1">
+                            <Setter Property="Content" Value="{Binding ElementName=ProgressControl, Path=PauseText}" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding State}" Value="2">
+                            <Setter Property="Content" Value="{Binding ElementName=ProgressControl, Path=ContinueText}" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding State}" Value="3">
+                            <Setter Property="Content" Value="{Binding ElementName=ProgressControl, Path=RestartText}" />
+                            <Setter Property="Visibility" Value="{Binding ElementName=ProgressControl, Path=ShowButtonOnFinish, Converter={StaticResource BooleanToHiddenConverter}}"></Setter>
+                        </DataTrigger>
+                    </Style.Triggers>  
+                </Style>
+            </Button.Style>
+        </Button>
+    </DockPanel>
+</UserControl>
