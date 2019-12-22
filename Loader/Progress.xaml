@@ -79,6 +79,7 @@
             Padding="5 2 5 2" 
             Margin="5" 
             Background="White" 
+            IsEnabled="{Binding CanPause}"
             HorizontalAlignment="Right" 
             VerticalAlignment="Top">
             <Button.Resources>

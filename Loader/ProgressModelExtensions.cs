@@ -8,6 +8,8 @@ namespace Components
 {
     internal static class ProgressModelExtensions
     {
+        private const int InstantSpeedMaxCount = 200;
+
         public static ProgressModel<T> Bind<T>(this ProgressModel<T> self)
            where T : IConvertible
         {
@@ -25,7 +27,7 @@ namespace Components
 
                 var nextState = model
                     .WithCurrentTime()
-                    .WithPassedState((self.OperationState, self.Progress, self.Time))
+                    .WithInstantSpeed(self)
                     .Bind();
 
                 nextState.StateHandler(nextState);
@@ -42,7 +44,7 @@ namespace Components
                     ? self
                         .WithOperationState(OperationState.Started)
                         .WithoutSubOperation()
-                        .WithoutPassedStates()
+                        .WithoutInstantSpeeds()
                         .WithProgress(0)
                     : self
                         .WithOperationState(OperationState.Started);
@@ -86,7 +88,7 @@ namespace Components
                         .WithProgress(p.ToDouble(CultureInfo.CurrentCulture))
                         .WithOperationState(OperationState.Started)
                         .WithoutSubOperation()
-                        .WithoutPassedStates()
+                        .WithoutInstantSpeeds()
                     : self
                         .WithProgress(self.Progress + p.ToDouble(CultureInfo.CurrentCulture))
                         .WithoutSubOperation()
@@ -108,7 +110,7 @@ namespace Components
                             .WithProgress(0)
                             .WithOperationState(OperationState.Started)
                             .WithSubOperation(operation)
-                            .WithoutPassedStates()
+                            .WithoutInstantSpeeds()
                         : self
                             .WithSubOperation(operation);
 
@@ -131,54 +133,19 @@ namespace Components
         public static double? Speed<T>(this ProgressModel<T> self)
            where T : IConvertible
         {
-            if (self.OperationState == OperationState.Initial || self.Progress <= 0)
-            {
-                return null;
-            }
-
-
-            var speeds = self
-                .PassedStates
-                .Aggregate(
-                    ImmutableList<(double progress, DateTime time, double? speed)>.Empty, 
-                    (acc, state) =>
-            {
-                if (state.state != OperationState.Started)
-                {
-                    return acc;
-                }
-                if (!acc.Any())
-                {
-                    return acc.Add((state.progress, state.time, null));
-                }
-
-                var (progress, time, _) = acc.Last();
-
-                if (state.progress <= progress)
-                {
-                    return acc;
-                }
-                    
-
-                var speed = (state.progress - progress) / (state.time - time).TotalMilliseconds;
-
-                return acc.Add((state.progress, state.time, speed));
-
-            }).Where((d) => d.speed != null).ToImmutableList();
-
-            var count = speeds.Count();
+            var count = self.InstantSpeeds.Count();
 
             if (count == 0)
             {
                 return null;
             }
 
-            if (count <= 40)
+            if (count < 40)
             {
-                return speeds.TakeLast(3).Average((s) => s.speed);
+                return self.InstantSpeeds.TakeLast(3).Average();
             }
 
-            return speeds.TakeLast((int)(10*((double)count/100))).Average((s) => s.speed);
+            return self.InstantSpeeds.TakeLast((int)(10 * ((double)count / 100))).Average();
         }
 
         public static string ConvertedSpeed<T>(this ProgressModel<T> self)
@@ -242,11 +209,30 @@ namespace Components
             return new ProgressModel<T>(self, DateTime.Now);
         }
 
-        public static ProgressModel<T> WithPassedState<T>(this ProgressModel<T> self, (OperationState state, double progress, DateTime time) passedState)
+        public static ProgressModel<T> WithInstantSpeed<T>(this ProgressModel<T> self, ProgressModel<T>? previous)
             where T : IConvertible
         {
-            return new ProgressModel<T>(self, self.PassedStates.Add(passedState));
+            var cannotCalculateSpeed = 
+                previous == null 
+                || self.OperationState != OperationState.Started
+                || previous.Value.Progress >= self.Progress
+                || previous.Value.OperationState != OperationState.Started;
 
+            if (cannotCalculateSpeed)
+            {
+                return self;
+            }
+            else
+            {
+                var speed = (self.Progress - previous.Value.Progress) / (self.Time - previous.Value.Time).TotalMilliseconds;
+
+                if (self.InstantSpeeds.Count >= InstantSpeedMaxCount)
+                {   
+                    return new ProgressModel<T>(self, self.InstantSpeeds.RemoveAt(0).Add(speed));
+                }
+
+                return new ProgressModel<T>(self, self.InstantSpeeds.Add(speed));
+            }
         }
 
         public static ProgressModel<T> WithoutSubOperation<T>(this ProgressModel<T> self)
@@ -261,10 +247,10 @@ namespace Components
             return new ProgressModel<T>(self, operation);
         }
 
-        public static ProgressModel<T> WithoutPassedStates<T>(this ProgressModel<T> self)
+        public static ProgressModel<T> WithoutInstantSpeeds<T>(this ProgressModel<T> self)
             where T : IConvertible
         {
-            return new ProgressModel<T>(self, ImmutableList<(OperationState state, double progress, DateTime time)>.Empty);
+            return new ProgressModel<T>(self, ImmutableList<double>.Empty);
         }
 
         public static ProgressModel<T> WithProgress<T>(this ProgressModel<T> self, double progress)

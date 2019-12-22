@@ -13,7 +13,7 @@ namespace Components
             (Action<Action> subscribe, Action<Action> unsubscribe) startSubscription,
             (Action<Action> subscribe, Action<Action> unsubscribe) pauseSubscription,
             Action<ProgressModel<T>> stateHandler,
-            ImmutableList<(OperationState state, double progress, DateTime time)> passedStates,
+            ImmutableList<double> instantSpeeds,
             ProgresslessOperation? currentSubOperation = null)
         {
             this.Config = config;
@@ -24,7 +24,7 @@ namespace Components
             this.PauseSubscription = pauseSubscription;
             this.StateHandler = stateHandler;
             this.CurrentSubOperation = currentSubOperation;
-            this.PassedStates = passedStates;
+            this.InstantSpeeds = instantSpeeds;
         }
 
         internal ProgressModel(ProgressModel<T> model, ProgresslessOperation? currentSubOperation)
@@ -39,10 +39,10 @@ namespace Components
             this.Progress = progress;
         }
 
-        internal ProgressModel(ProgressModel<T> model, ImmutableList<(OperationState state, double progress, DateTime time)> passedStates)
+        internal ProgressModel(ProgressModel<T> model, ImmutableList<double> instantSpeeds)
         {
             this = model;
-            this.PassedStates = passedStates;
+            this.InstantSpeeds = instantSpeeds;
         }
 
         internal ProgressModel(ProgressModel<T> model, OperationState state)
@@ -73,7 +73,7 @@ namespace Components
 
         public Action<ProgressModel<T>> StateHandler { get; }
 
-        public ImmutableList<(OperationState state, double progress, DateTime time)> PassedStates { get; }
+        public ImmutableList<double> InstantSpeeds { get; }
 
         public static ProgressModel<TP> Create<TP>(
             ProgressConfig<TP> operation,
@@ -90,7 +90,7 @@ namespace Components
                 startSubscription,
                 pauseSubscription,
                 stateHandler,
-                ImmutableList<(OperationState state, double progress, DateTime time)>.Empty);
+                ImmutableList<double>.Empty);
         }
     }
 }

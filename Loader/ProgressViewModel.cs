@@ -18,8 +18,9 @@ namespace Components
         private string? _title;
         private bool _subOperationRunning = false;
         private bool _showProgressInfo = true;
-        private OperationState _state;
-        private bool _showTime;
+        private OperationState _state = OperationState.Initial;
+        private bool _showTime = false;
+        private bool _canPause = true;
 
         public ProgressViewModel(ProgressConfig<T> config)
         {
@@ -40,6 +41,7 @@ namespace Components
         {  
             if (this.State == OperationState.Started)
             {
+                this.CanPause = false;
                 this.Canceled?.Invoke();
             }
             else
@@ -138,6 +140,16 @@ namespace Components
             }
         }
 
+        public bool CanPause
+        {
+            get => this._canPause;
+            set
+            {
+                this._canPause = value;
+                this.OnPropertyChanged();
+            }
+        }
+
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
@@ -153,6 +165,7 @@ namespace Components
                 this.State = model.OperationState;
                 this.ShowTime = true;
                 this.Value = model.Percent();
+                this.CanPause = true;
 
                 switch (model.OperationState)
                 {
