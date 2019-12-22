@@ -3,7 +3,7 @@ using System.Collections.Immutable;
 
 namespace Components
 {
-    public struct ProgressModel<T> where T : IConvertible
+    internal struct ProgressModel<T> where T : IConvertible
     {
         private ProgressModel(
             ProgressConfig<T> config,
@@ -13,7 +13,7 @@ namespace Components
             (Action<Action> subscribe, Action<Action> unsubscribe) startSubscription,
             (Action<Action> subscribe, Action<Action> unsubscribe) pauseSubscription,
             Action<ProgressModel<T>> stateHandler,
-            ImmutableList<ProgressModel<T>> passedStates,
+            ImmutableList<(OperationState state, double progress, DateTime time)> passedStates,
             ProgresslessOperation? currentSubOperation = null)
         {
             this.Config = config;
@@ -28,7 +28,7 @@ namespace Components
         }
 
         internal ProgressModel(ProgressModel<T> model, ProgresslessOperation? currentSubOperation)
-        {
+        { 
             this = model;
             this.CurrentSubOperation = currentSubOperation;
         }
@@ -39,7 +39,7 @@ namespace Components
             this.Progress = progress;
         }
 
-        internal ProgressModel(ProgressModel<T> model, ImmutableList<ProgressModel<T>> passedStates)
+        internal ProgressModel(ProgressModel<T> model, ImmutableList<(OperationState state, double progress, DateTime time)> passedStates)
         {
             this = model;
             this.PassedStates = passedStates;
@@ -73,7 +73,7 @@ namespace Components
 
         public Action<ProgressModel<T>> StateHandler { get; }
 
-        public ImmutableList<ProgressModel<T>> PassedStates { get; }
+        public ImmutableList<(OperationState state, double progress, DateTime time)> PassedStates { get; }
 
         public static ProgressModel<TP> Create<TP>(
             ProgressConfig<TP> operation,
@@ -90,7 +90,7 @@ namespace Components
                 startSubscription,
                 pauseSubscription,
                 stateHandler,
-                ImmutableList<ProgressModel<TP>>.Empty);
+                ImmutableList<(OperationState state, double progress, DateTime time)>.Empty);
         }
     }
 }

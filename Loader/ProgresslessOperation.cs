@@ -17,6 +17,6 @@ namespace Components
 
         public bool HideWholeProgress { get; }
 
-        public (Action<Action> subscribe, Action<Action> unsubscribe) StartSubscription { get; }
+        internal (Action<Action> subscribe, Action<Action> unsubscribe) StartSubscription { get; }
     }
 }

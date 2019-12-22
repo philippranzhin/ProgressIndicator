@@ -10,7 +10,6 @@ namespace Components
     /// </summary>
     public partial class Progress : UserControl
     {
-
         public static readonly DependencyProperty ShowButtonOnFinishProperty
             = DependencyProperty.Register(
                 "ShowButtonOnFinish",
@@ -162,7 +161,6 @@ namespace Components
             get => (string)this.GetValue(FinishButtonTextProperty);
             set => this.SetValue(FinishButtonTextProperty, value);
         }
-
 
         public ICommand FinishButtonCommand
         {

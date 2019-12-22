@@ -5,7 +5,7 @@ namespace Components
 {
     using System.Globalization;
 
-    public class ProgressConfig<T> where T : IConvertible
+    public struct ProgressConfig<T> where T : IConvertible
     {
         public ProgressConfig(
             string title,
@@ -27,38 +27,41 @@ namespace Components
 
             this.SpeedConverter = (e) => e.ToString(CultureInfo.InvariantCulture);
             this.ProgressConverter = (e) => e.ToString(CultureInfo.InvariantCulture);
-            this.TimeConverter = (e) => e == null ? string.Empty : e?.ToString(@"m\:s");
+            this.TimeConverter = (e) =>
+            {
+                if (e == null)
+                {
+                    return string.Empty;
+                }
+
+                return ((TimeSpan)e).ToString(@"m\:s");
+            };
 
             this.SubOperations = ImmutableList<ProgresslessOperation>.Empty;
         }
 
-        private ProgressConfig(
-            string title,
-            double finishValue,
-            Action<T> start,
-            Action pause,
-            Func<double, string> speedConverter,
-            Func<T, string> progressConverter,
-            Func<TimeSpan?, string> timeConverter,
-            ImmutableList<ProgresslessOperation> subOperations,
-            (Action<Action<T>> subscribe, Action<Action<T>> unsubscribe) progressSubscription,
-            (Action<Action> subscribe, Action<Action> unsubscribe) finishSubscription,
-            (Action<Action> subscribe, Action<Action> unsubscribe) pauseSubscription)
+        private ProgressConfig(ProgressConfig<T> config, ProgresslessOperation operation)
         {
-            this.Start = start;
-            this.Pause = pause;
-            this.Title = title;
-            this.FinishValue = finishValue;
-
-            this.ProgressSubscription = progressSubscription;
-            this.FinishSubscription = finishSubscription;
-            this.PauseSubscription = pauseSubscription;
-
+            this = config;
+            this.SubOperations = this.SubOperations.Add(operation);
+        }
+        
+        private ProgressConfig(ProgressConfig<T> config, Func<double, string> speedConverter)
+        {
+            this = config;
             this.SpeedConverter = speedConverter;
-            this.ProgressConverter = progressConverter;
-            this.TimeConverter = timeConverter;
+        }
 
-            this.SubOperations = subOperations;
+        private ProgressConfig(ProgressConfig<T> config, Func<T, string> progressConverter)
+        {
+            this = config;
+            this.ProgressConverter = progressConverter; 
+        }
+
+        private ProgressConfig(ProgressConfig<T> config, Func<TimeSpan?, string> timeConverter)
+        {
+            this = config;
+            this.TimeConverter = timeConverter;
         }
 
         public Action<T> Start { get; }
@@ -85,70 +88,22 @@ namespace Components
 
         public ProgressConfig<T> WithSubOperation(ProgresslessOperation operation)
         {
-            return new ProgressConfig<T>(
-                this.Title,
-                this.FinishValue,
-                this.Start,
-                this.Pause,
-                this.SpeedConverter,
-                this.ProgressConverter,
-                this.TimeConverter,
-                this.SubOperations.Add(operation),
-                this.ProgressSubscription,
-                this.FinishSubscription,
-                this.PauseSubscription
-                );
+            return new ProgressConfig<T>(this, operation);
         }
 
         public ProgressConfig<T> WithSpeedConverter(Func<double, string> speedConverter)
         {
-            return new ProgressConfig<T>(
-                this.Title,
-                this.FinishValue,
-                this.Start,
-                this.Pause,
-                speedConverter,
-                this.ProgressConverter,
-                this.TimeConverter,
-                this.SubOperations,
-                this.ProgressSubscription,
-                this.FinishSubscription,
-                this.PauseSubscription
-                );
+            return new ProgressConfig<T>(this, speedConverter);
         }
 
         public ProgressConfig<T> WithProgressConverter(Func<T, string> progressConverter)
         {
-            return new ProgressConfig<T>(
-                this.Title,
-                this.FinishValue,
-                this.Start,
-                this.Pause,
-                this.SpeedConverter,
-                progressConverter,
-                this.TimeConverter,
-                this.SubOperations,
-                this.ProgressSubscription,
-                this.FinishSubscription,
-                this.PauseSubscription
-            );
+            return new ProgressConfig<T>(this, progressConverter);
         }
 
         public ProgressConfig<T> WithTimeConverter(Func<TimeSpan?, string> timeConverter)
         {
-            return new ProgressConfig<T>(
-                this.Title,
-                this.FinishValue,
-                this.Start,
-                this.Pause,
-                this.SpeedConverter,
-                this.ProgressConverter,
-                timeConverter,
-                this.SubOperations,
-                this.ProgressSubscription,
-                this.FinishSubscription,
-                this.PauseSubscription
-            );
+            return new ProgressConfig<T>(this, timeConverter);
         }
     }
 }

@@ -25,7 +25,7 @@ namespace Components
 
                 var nextState = model
                     .WithCurrentTime()
-                    .WithPassedState(self)
+                    .WithPassedState((self.OperationState, self.Progress, self.Time))
                     .Bind();
 
                 nextState.StateHandler(nextState);
@@ -128,84 +128,61 @@ namespace Components
             return self;
         }
 
-        public static ProgressModel<T> WithOperationState<T>(this ProgressModel<T> self, OperationState state)
-        where T : IConvertible
-        {
-            return new ProgressModel<T>(self, state);
-        }
-
-        public static ProgressModel<T> WithCurrentTime<T>(this ProgressModel<T> self)
-           where T : IConvertible
-        {
-            return new ProgressModel<T>(self, DateTime.Now);
-        }
-
-        public static ProgressModel<T> WithPassedState<T>(this ProgressModel<T> self, ProgressModel<T> passedState)
-           where T : IConvertible
-        {
-            return new ProgressModel<T>(self, self.PassedStates.Add(passedState));
-
-        }
-
-        public static ProgressModel<T> WithoutSubOperation<T>(this ProgressModel<T> self)
-           where T : IConvertible
-        {
-            return new ProgressModel<T>(self, (ProgresslessOperation?)null);
-        }
-
-        public static ProgressModel<T> WithSubOperation<T>(this ProgressModel<T> self, ProgresslessOperation operation)
-            where T : IConvertible
-        {
-            return new ProgressModel<T>(self, operation);
-        }
-
-        public static ProgressModel<T> WithoutPassedStates<T>(this ProgressModel<T> self)
-           where T : IConvertible
-        {
-            return new ProgressModel<T>(self, ImmutableList<ProgressModel<T>>.Empty);
-        }
-
-        public static ProgressModel<T> WithProgress<T>(this ProgressModel<T> self, double progress)
-            where T : IConvertible
-        {
-            return new ProgressModel<T>(self, progress);
-        }
-
         public static double? Speed<T>(this ProgressModel<T> self)
            where T : IConvertible
         {
-            if (self.OperationState == OperationState.Initial)
+            if (self.OperationState == OperationState.Initial || self.Progress <= 0)
             {
                 return null;
             }
 
-            var speeds = self.PassedStates.Aggregate(ImmutableList<double>.Empty, (acc, state) =>
-            {
-                if (state.OperationState == OperationState.Started)
-                {
-                    
 
-                    if (!state.PassedStates.Any() || state.Progress <= state.PassedStates.Last().Progress)
-                    {
-                        return acc;
-                    }
-                    var previous = state.PassedStates.Last();
-                    return acc.Add((state.Progress - previous.Progress) / (state.Time - previous.Time).TotalMilliseconds);
+            var speeds = self
+                .PassedStates
+                .Aggregate(
+                    ImmutableList<(double progress, DateTime time, double? speed)>.Empty, 
+                    (acc, state) =>
+            {
+                if (state.state != OperationState.Started)
+                {
+                    return acc;
+                }
+                if (!acc.Any())
+                {
+                    return acc.Add((state.progress, state.time, null));
                 }
 
-                return acc;
-            }).TakeLast(3);
+                var (progress, time, _) = acc.Last();
 
-            if (!speeds.Any())
+                if (state.progress <= progress)
+                {
+                    return acc;
+                }
+                    
+
+                var speed = (state.progress - progress) / (state.time - time).TotalMilliseconds;
+
+                return acc.Add((state.progress, state.time, speed));
+
+            }).Where((d) => d.speed != null).ToImmutableList();
+
+            var count = speeds.Count();
+
+            if (count == 0)
             {
                 return null;
             }
 
-            return speeds.Average();
+            if (count <= 40)
+            {
+                return speeds.TakeLast(3).Average((s) => s.speed);
+            }
+
+            return speeds.TakeLast((int)(10*((double)count/100))).Average((s) => s.speed);
         }
 
         public static string ConvertedSpeed<T>(this ProgressModel<T> self)
-           where T : IConvertible
+           where T : IConvertible 
         {
             var speed = self.Speed();
 
@@ -250,6 +227,50 @@ namespace Components
             }
 
             return self.Progress/(self.Config.FinishValue / 100);
+        }
+
+
+        public static ProgressModel<T> WithOperationState<T>(this ProgressModel<T> self, OperationState state)
+            where T : IConvertible
+        {
+            return new ProgressModel<T>(self, state);
+        }
+
+        public static ProgressModel<T> WithCurrentTime<T>(this ProgressModel<T> self)
+            where T : IConvertible
+        {
+            return new ProgressModel<T>(self, DateTime.Now);
+        }
+
+        public static ProgressModel<T> WithPassedState<T>(this ProgressModel<T> self, (OperationState state, double progress, DateTime time) passedState)
+            where T : IConvertible
+        {
+            return new ProgressModel<T>(self, self.PassedStates.Add(passedState));
+
+        }
+
+        public static ProgressModel<T> WithoutSubOperation<T>(this ProgressModel<T> self)
+            where T : IConvertible
+        {
+            return new ProgressModel<T>(self, (ProgresslessOperation?)null);
+        }
+
+        public static ProgressModel<T> WithSubOperation<T>(this ProgressModel<T> self, ProgresslessOperation operation)
+            where T : IConvertible
+        {
+            return new ProgressModel<T>(self, operation);
+        }
+
+        public static ProgressModel<T> WithoutPassedStates<T>(this ProgressModel<T> self)
+            where T : IConvertible
+        {
+            return new ProgressModel<T>(self, ImmutableList<(OperationState state, double progress, DateTime time)>.Empty);
+        }
+
+        public static ProgressModel<T> WithProgress<T>(this ProgressModel<T> self, double progress)
+            where T : IConvertible
+        {
+            return new ProgressModel<T>(self, progress);
         }
     }
 }

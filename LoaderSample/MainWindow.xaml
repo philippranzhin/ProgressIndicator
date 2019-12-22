@@ -10,11 +10,8 @@
         Loaded="MainWindow_OnLoaded"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto"></ColumnDefinition>
-            <ColumnDefinition Width="*"></ColumnDefinition>
-        </Grid.ColumnDefinitions>
         <components:Progress 
+            HorizontalAlignment="Left"
             Foreground="Blue" 
             x:Name="Progress" 
             ShowButtonOnFinish="True" 

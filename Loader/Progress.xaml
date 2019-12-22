@@ -7,11 +7,7 @@
              x:Name="ProgressControl"
              mc:Ignorable="d" MinWidth="400">
     <UserControl.Resources>
-        <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="Themes/Generic.xaml" />
-                <ResourceDictionary>
-                    <infra:BooleanToHiddenConverter x:Key="BooleanToHiddenConverter" />
+        <infra:BooleanToHiddenConverter x:Key="BooleanToHiddenConverter" />
                     <Style TargetType="{x:Type ProgressBar}">
                         <Setter Property="Template">
                             <Setter.Value>
@@ -31,9 +27,6 @@
                             </DataTrigger>
                         </Style.Triggers>
                     </Style>
-                </ResourceDictionary>
-            </ResourceDictionary.MergedDictionaries>
-        </ResourceDictionary>
     </UserControl.Resources>
     <DockPanel>
         <DockPanel Dock="Top">
