@@ -1,8 +1,7 @@
-﻿using System.ComponentModel;
-
-namespace Components
+﻿namespace Components
 {
     using System;
+    using System.ComponentModel;
     using System.Runtime.CompilerServices;
     using System.Windows.Input;
     using System.Windows.Threading;
@@ -26,9 +25,9 @@ namespace Components
         {
             var model = ProgressModel<T>.Create(
                 config,
-                ((e) => Started += e, (e) => Started -= e),
-                ((e) => Canceled += e, (e) => Canceled -= e),
-                HandleState
+                ((e) => this.Started += e, (e) => this.Started -= e),
+                ((e) => this.Canceled += e, (e) => this.Canceled -= e), 
+                this.HandleState
             ).Bind();
 
             this.HandleState(model);
@@ -185,14 +184,12 @@ namespace Components
                             this.SubOperationRunning = true;
                             this.ShowProgressInfo = !model.CurrentSubOperation.HideWholeProgress && model.Progress > 0;
                         }
+
                         return;
                     case OperationState.Finished:
                         this.ShowTime = false;
                         return;
-                    case OperationState.Paused:
-                        return;
-                    case OperationState.Initial:
-                        return;
+                    default: return;
                 }
             });
         }
