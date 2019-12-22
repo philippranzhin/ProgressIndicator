@@ -23,7 +23,10 @@ namespace Components
                 self.StartSubscription.unsubscribe(Start);
                 unsubscribeSubOperations();
 
-                var nextState = model.WithCurrentTime().WithInstantSpeed(self).Bind();
+                var nextState =
+                    model
+                        .WithCurrentTime()
+                        .WithInstantSpeed(self).Bind();
 
                 nextState.StateHandler(nextState);
             }
@@ -33,7 +36,10 @@ namespace Components
                 if (self.OperationState == OperationState.Started) return;
 
                 var startedState = self.OperationState == OperationState.Finished
-                    ? self.WithOperationState(OperationState.Started).WithoutSubOperation().WithoutInstantSpeeds()
+                    ? self
+                        .WithOperationState(OperationState.Started)
+                        .WithoutSubOperation()
+                        .WithoutInstantSpeeds()
                         .WithProgress(0)
                     : self.WithOperationState(OperationState.Started);
 
@@ -61,9 +67,14 @@ namespace Components
             void Progress(T p)
             {
                 var startedState = self.OperationState == OperationState.Finished
-                    ? self.WithProgress(p.ToDouble(CultureInfo.CurrentCulture))
-                        .WithOperationState(OperationState.Started).WithoutSubOperation().WithoutInstantSpeeds()
-                    : self.WithProgress(self.Progress + p.ToDouble(CultureInfo.CurrentCulture)).WithoutSubOperation()
+                    ? self
+                        .WithProgress(p.ToDouble(CultureInfo.CurrentCulture))
+                        .WithOperationState(OperationState.Started)
+                        .WithoutSubOperation()
+                        .WithoutInstantSpeeds()
+                    : self
+                        .WithProgress(self.Progress + p.ToDouble(CultureInfo.CurrentCulture))
+                        .WithoutSubOperation()
                         .WithOperationState(OperationState.Started);
 
                 ChangeState(startedState);
@@ -79,7 +90,9 @@ namespace Components
                 void Handle()
                 {
                     var startedState = self.OperationState == OperationState.Finished
-                        ? self.WithProgress(0).WithOperationState(OperationState.Started).WithSubOperation(operation)
+                        ? self.WithProgress(0)
+                            .WithOperationState(OperationState.Started)
+                            .WithSubOperation(operation)
                             .WithoutInstantSpeeds()
                         : self.WithSubOperation(operation);
 
@@ -163,9 +176,10 @@ namespace Components
         public static ProgressModel<T> WithInstantSpeed<T>(this ProgressModel<T> self, ProgressModel<T>? previous)
             where T : IConvertible
         {
-            var cannotCalculateSpeed = previous == null || self.OperationState != OperationState.Started ||
-                                       previous.Value.Progress >= self.Progress ||
-                                       previous.Value.OperationState != OperationState.Started;
+            var cannotCalculateSpeed = previous == null
+                                       || self.OperationState != OperationState.Started
+                                       || previous.Value.Progress >= self.Progress
+                                       || previous.Value.OperationState != OperationState.Started;
 
             if (cannotCalculateSpeed)
             {

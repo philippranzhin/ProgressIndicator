@@ -4,6 +4,8 @@
              xmlns:local="clr-namespace:LoaderSample"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-
+        <Style TargetType="ProgressBar">
+            <Setter Property="Background" Value="Indigo"/>
+        </Style>
     </Application.Resources>
 </Application>

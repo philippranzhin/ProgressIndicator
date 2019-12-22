@@ -18,9 +18,13 @@
             Margin="20"
             HorizontalAlignment="Left"
             FinishButtonCommand="{Binding ElementName=Self, Path=RestartCommand}"
+            DisabledProgressColor="BlueViolet"
+            ForegroundLightColor="Red"
+            ProgressBackgroundColor="Blue"
+            ProgressColor="GreenYellow"
             FinishButtonText="RESTART"
             FinishedText="Finished!"
-            Foreground="Blue"
+            Foreground="Black"
             ShowButtonOnFinish="True" />
     </Grid>
 </Window>
