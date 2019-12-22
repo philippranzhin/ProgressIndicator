@@ -1,6 +1,6 @@
 ﻿namespace Components
 {
-    internal enum OperationState
+    public enum OperationState
     {
         Initial,
         Started,

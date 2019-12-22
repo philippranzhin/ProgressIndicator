@@ -118,7 +118,7 @@ namespace Components
             }
         }
 
-        internal OperationState State
+        public OperationState State
         {
             get => this._state;
             set

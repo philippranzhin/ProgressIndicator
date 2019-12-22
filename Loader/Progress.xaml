@@ -8,25 +8,25 @@
              mc:Ignorable="d" MinWidth="400">
     <UserControl.Resources>
         <infra:BooleanToHiddenConverter x:Key="BooleanToHiddenConverter" />
-                    <Style TargetType="{x:Type ProgressBar}">
-                        <Setter Property="Template">
-                            <Setter.Value>
-                                <ControlTemplate TargetType="ProgressBar">
-                                    <Border BorderThickness="0" Background="{TemplateBinding Background}" CornerRadius="0" Padding="0">
-                                        <Grid x:Name="PART_Track">
-                                            <Rectangle x:Name="PART_Indicator" HorizontalAlignment="Left" Fill="{DynamicResource PrimaryColor}" />
-                                        </Grid>
-                                    </Border>
-                                </ControlTemplate>
-                            </Setter.Value>
-                        </Setter>
-                        <Setter Property="Background" Value="AliceBlue" />
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding SubOperationRunning}" Value="True" >
-                                <Setter Property="Background" Value="Black" />
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
+        <Style TargetType="{x:Type ProgressBar}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ProgressBar">
+                        <Border BorderThickness="0" Background="{TemplateBinding Background}" CornerRadius="0" Padding="0">
+                            <Grid x:Name="PART_Track">
+                                <Rectangle x:Name="PART_Indicator" HorizontalAlignment="Left" Fill="{TemplateBinding Foreground}" />
+                            </Grid>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Background" Value="AliceBlue" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding SubOperationRunning}" Value="True" >
+                    <Setter Property="Background" Value="Black" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
     </UserControl.Resources>
     <DockPanel>
         <DockPanel Dock="Top">
@@ -61,12 +61,9 @@
                     </Style>
                 </TextBlock.Style>
             </TextBlock>
-            <Grid DockPanel.Dock="Top">
-                <ProgressBar Height="7" Margin="5" Value="{Binding Value}" DockPanel.Dock="Top">
+            <ProgressBar DockPanel.Dock="Top" Height="7" Margin="5" Value="{Binding Value}" />
 
-                </ProgressBar>
-            </Grid>
-            
+
             <TextBlock DockPanel.Dock="Top" Visibility="{Binding ShowProgressInfo, Converter={StaticResource BooleanToHiddenConverter} }" Margin="5">
                 <Run Text="{Binding ElementName=ProgressControl, Path=DownloadedText}"/>
                 <Run Text="{Binding Progress}"/>,
@@ -111,7 +108,7 @@
                             <Setter Property="Command" Value="{Binding ElementName=ProgressControl, Path=FinishButtonCommand}" />
                             <Setter Property="Visibility" Value="{Binding ElementName=ProgressControl, Path=ShowButtonOnFinish, Converter={StaticResource BooleanToHiddenConverter}}"></Setter>
                         </DataTrigger>
-                    </Style.Triggers>  
+                    </Style.Triggers>
                 </Style>
             </Button.Style>
         </Button>

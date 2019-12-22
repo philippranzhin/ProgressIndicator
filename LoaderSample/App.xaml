@@ -4,15 +4,6 @@
              xmlns:local="clr-namespace:LoaderSample"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-        <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary>
-                    <ResourceDictionary.MergedDictionaries>
-                        <ResourceDictionary Source="/Components;component/Themes/Generic.xaml" />
-                    </ResourceDictionary.MergedDictionaries>
-                    <SolidColorBrush x:Key="PrimaryColor" Color="Red" />
-                </ResourceDictionary>
-            </ResourceDictionary.MergedDictionaries>
-            </ResourceDictionary>
+
     </Application.Resources>
 </Application>
