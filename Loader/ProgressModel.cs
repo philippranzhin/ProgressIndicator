@@ -3,28 +3,58 @@ using System.Collections.Immutable;
 
 namespace Components
 {
-    public class ProgressModel<T> where T : IConvertible
+    public struct ProgressModel<T> where T : IConvertible
     {
         private ProgressModel(
             ProgressConfig<T> config,
             DateTime time,
             double progress,
             OperationState state,
-            ImmutableList<(Action<Action> subscribe, Action<Action> unsubscribe)> startSubscriptions,
-            ImmutableList<(Action<Action> subscribe, Action<Action> unsubscribe)> pauseSubscriptions,
-            ImmutableList<Action<ProgressModel<T>>> stateHandlers,
-            ImmutableList<ProgressModel<T>> passesdStates,
+            (Action<Action> subscribe, Action<Action> unsubscribe) startSubscription,
+            (Action<Action> subscribe, Action<Action> unsubscribe) pauseSubscription,
+            Action<ProgressModel<T>> stateHandler,
+            ImmutableList<ProgressModel<T>> passedStates,
             ProgresslessOperation? currentSubOperation = null)
         {
             this.Config = config;
             this.Time = time;
             this.Progress = progress;
             this.OperationState = state;
-            this.StartSubscriptions = startSubscriptions;
-            this.PauseSubscriptions = pauseSubscriptions;
-            this.StateHandlers = stateHandlers;
+            this.StartSubscription = startSubscription;
+            this.PauseSubscription = pauseSubscription;
+            this.StateHandler = stateHandler;
             this.CurrentSubOperation = currentSubOperation;
-            this.PassedStates = passesdStates;
+            this.PassedStates = passedStates;
+        }
+
+        internal ProgressModel(ProgressModel<T> model, ProgresslessOperation? currentSubOperation)
+        {
+            this = model;
+            this.CurrentSubOperation = currentSubOperation;
+        }
+
+        internal ProgressModel(ProgressModel<T> model, double progress)
+        {
+            this = model;
+            this.Progress = progress;
+        }
+
+        internal ProgressModel(ProgressModel<T> model, ImmutableList<ProgressModel<T>> passedStates)
+        {
+            this = model;
+            this.PassedStates = passedStates;
+        }
+
+        internal ProgressModel(ProgressModel<T> model, OperationState state)
+        {
+            this = model;
+            this.OperationState = state;
+        }
+
+        internal ProgressModel(ProgressModel<T> model, DateTime time)
+        {
+            this = model;
+            this.Time = time;
         }
 
         public ProgressConfig<T> Config { get; }
@@ -37,49 +67,30 @@ namespace Components
 
         public ProgresslessOperation? CurrentSubOperation { get; }
 
-        public ImmutableList<(Action<Action> subscribe, Action<Action> unsubscribe)> StartSubscriptions { get; }
+        public (Action<Action> subscribe, Action<Action> unsubscribe) StartSubscription { get; }
 
-        public ImmutableList<(Action<Action> subscribe, Action<Action> unsubscribe)> PauseSubscriptions { get; }
+        public (Action<Action> subscribe, Action<Action> unsubscribe) PauseSubscription { get; }
 
-        public ImmutableList<Action<ProgressModel<T>>> StateHandlers { get; }
+        public Action<ProgressModel<T>> StateHandler { get; }
 
         public ImmutableList<ProgressModel<T>> PassedStates { get; }
 
-        public static ProgressModel<TP> Create<TP>(ProgressConfig<TP> operation) where TP : IConvertible
-        {
-            return new ProgressModel<TP>(
-                operation,
-                DateTime.Now,
-                0,
-                OperationState.Initial,
-                ImmutableList<(Action<Action>, Action<Action>)>.Empty,
-                ImmutableList<(Action<Action>, Action<Action>)>.Empty,
-                ImmutableList<Action<ProgressModel<TP>>>.Empty,
-                ImmutableList<ProgressModel<TP>>.Empty);
-        }
-
         public static ProgressModel<TP> Create<TP>(
             ProgressConfig<TP> operation,
-            DateTime time,
-            double progress,
-            OperationState state,
-            ImmutableList<(Action<Action> subscribe, Action<Action> unsubscribe)> startSubscriptions,
-            ImmutableList<(Action<Action> subscribe, Action<Action> unsubscribe)> pauseSubscriptions,
-            ImmutableList<Action<ProgressModel<TP>>> stateHandlers,
-            ImmutableList<ProgressModel<TP>> states,
-            ProgresslessOperation? currentSubOperation = null)
+            (Action<Action> subscribe, Action<Action> unsubscribe) startSubscription,
+            (Action<Action> subscribe, Action<Action> unsubscribe) pauseSubscription,
+            Action<ProgressModel<TP>> stateHandler)
              where TP : IConvertible
         {
             return new ProgressModel<TP>(
                 operation,
-                time,
-                progress,
-                state,
-                startSubscriptions,
-                pauseSubscriptions,
-                stateHandlers,
-                states,
-                currentSubOperation);
+                DateTime.Now, 
+                0, 
+                OperationState.Initial,
+                startSubscription,
+                pauseSubscription,
+                stateHandler,
+                ImmutableList<ProgressModel<TP>>.Empty);
         }
     }
 }

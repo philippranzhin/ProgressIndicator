@@ -8,57 +8,6 @@ namespace Components
 {
     internal static class ProgressModelExtensions
     {
-        public static ProgressModel<T> WithStart<T>(
-            this ProgressModel<T> self,
-            (Action<Action> subscribe, Action<Action> unsubscribe) subscribeStart)
-            where T : IConvertible
-        {
-            return ProgressModel<T>.Create(
-                self.Config,
-                self.Time,
-                self.Progress,
-                self.OperationState,
-                self.StartSubscriptions.Add(subscribeStart),
-                self.PauseSubscriptions,
-                self.StateHandlers,
-                self.PassedStates,
-                self.CurrentSubOperation);
-        }
-
-        public static ProgressModel<T> WithCancel<T>(
-            this ProgressModel<T> self,
-            (Action<Action> subscribe, Action<Action> unsubscribe) subscribeCancel)
-            where T : IConvertible
-        {
-            return ProgressModel<T>.Create(
-                self.Config,
-                self.Time,
-                self.Progress,
-                self.OperationState,
-                self.StartSubscriptions,
-                self.PauseSubscriptions.Add(subscribeCancel),
-                self.StateHandlers,
-                self.PassedStates,
-                self.CurrentSubOperation);
-        }
-
-        public static ProgressModel<T> WithStateChangedHandler<T>(
-            this ProgressModel<T> self,
-            Action<ProgressModel<T>> handler)
-           where T : IConvertible
-        {
-            return ProgressModel<T>.Create(
-                self.Config,
-                self.Time,
-                self.Progress,
-                self.OperationState,
-                self.StartSubscriptions,
-                self.PauseSubscriptions,
-                self.StateHandlers.Add(handler),
-                self.PassedStates,
-                self.CurrentSubOperation);
-        }
-
         public static ProgressModel<T> Bind<T>(this ProgressModel<T> self)
            where T : IConvertible
         {
@@ -70,8 +19,8 @@ namespace Components
                 self.Config.FinishSubscription.unsubscribe(Finish);
                 self.Config.PauseSubscription.unsubscribe(Pause);
                 self.Config.ProgressSubscription.unsubscribe(Progress);
-                self.PauseSubscriptions.ForEach((s) => s.unsubscribe(self.Config.Pause));
-                self.StartSubscriptions.ForEach((s) => s.unsubscribe(Start));
+                self.PauseSubscription.unsubscribe(self.Config.Pause);
+                self.StartSubscription.unsubscribe(Start);
                 unsubscribeSubOperations();
 
                 var nextState = model
@@ -79,9 +28,7 @@ namespace Components
                     .WithPassedState(self)
                     .Bind();
 
-                nextState.StateHandlers.ForEach((hanldeState) => {
-                    hanldeState(nextState);
-                });
+                nextState.StateHandler(nextState);
             }
 
             void Start()
@@ -148,8 +95,8 @@ namespace Components
                 ChangeState(startedState);
             }
 
-            self.PauseSubscriptions.ForEach((s) => s.subscribe(self.Config.Pause));
-            self.StartSubscriptions.ForEach((s) => s.subscribe(Start));
+            self.PauseSubscription.subscribe(self.Config.Pause);
+            self.StartSubscription.subscribe(Start);
             self.Config.PauseSubscription.subscribe(Pause);
             self.Config.FinishSubscription.subscribe(Finish);
             self.Config.ProgressSubscription.subscribe(Progress);
@@ -184,112 +131,44 @@ namespace Components
         public static ProgressModel<T> WithOperationState<T>(this ProgressModel<T> self, OperationState state)
         where T : IConvertible
         {
-            return ProgressModel<T>.Create(
-                        self.Config,
-                        self.Time,
-                        self.Progress,
-                        state,
-                        self.StartSubscriptions,
-                        self.PauseSubscriptions,
-                        self.StateHandlers,
-                        self.PassedStates,
-                        self.CurrentSubOperation
-                    );
-        }
-
-        public static ProgressModel<T> WithProgress<T>(this ProgressModel<T> self, double progress)
-           where T : IConvertible
-        {
-            return ProgressModel<T>.Create(
-                        self.Config,
-                        self.Time,
-                        progress,
-                        self.OperationState,
-                        self.StartSubscriptions,
-                        self.PauseSubscriptions,
-                        self.StateHandlers,
-                        self.PassedStates,
-                        self.CurrentSubOperation
-                    );
+            return new ProgressModel<T>(self, state);
         }
 
         public static ProgressModel<T> WithCurrentTime<T>(this ProgressModel<T> self)
            where T : IConvertible
         {
-            return ProgressModel<T>.Create(
-                        self.Config,
-                        DateTime.Now,
-                        self.Progress,
-                        self.OperationState,
-                        self.StartSubscriptions,
-                        self.PauseSubscriptions,
-                        self.StateHandlers,
-                        self.PassedStates,
-                        self.CurrentSubOperation
-                    );
+            return new ProgressModel<T>(self, DateTime.Now);
         }
 
         public static ProgressModel<T> WithPassedState<T>(this ProgressModel<T> self, ProgressModel<T> passedState)
            where T : IConvertible
         {
-            return ProgressModel<T>.Create(
-                        self.Config,
-                        self.Time,
-                        self.Progress,
-                        self.OperationState,
-                        self.StartSubscriptions,
-                        self.PauseSubscriptions,
-                        self.StateHandlers,
-                        self.PassedStates.Add(passedState),
-                        self.CurrentSubOperation
-                    );
+            return new ProgressModel<T>(self, self.PassedStates.Add(passedState));
+
         }
 
         public static ProgressModel<T> WithoutSubOperation<T>(this ProgressModel<T> self)
            where T : IConvertible
         {
-            return ProgressModel<T>.Create(
-                        self.Config,
-                        self.Time,
-                        self.Progress,
-                        self.OperationState,
-                        self.StartSubscriptions,
-                        self.PauseSubscriptions,
-                        self.StateHandlers,
-                        self.PassedStates
-                    );
+            return new ProgressModel<T>(self, (ProgresslessOperation?)null);
         }
 
         public static ProgressModel<T> WithSubOperation<T>(this ProgressModel<T> self, ProgresslessOperation operation)
             where T : IConvertible
         {
-            return ProgressModel<T>.Create(
-                self.Config,
-                self.Time,
-                self.Progress,
-                self.OperationState,
-                self.StartSubscriptions,
-                self.PauseSubscriptions,
-                self.StateHandlers,
-                self.PassedStates,
-                operation
-            );
+            return new ProgressModel<T>(self, operation);
         }
 
         public static ProgressModel<T> WithoutPassedStates<T>(this ProgressModel<T> self)
            where T : IConvertible
         {
-            return ProgressModel<T>.Create(
-                        self.Config,
-                        self.Time,
-                        self.Progress,
-                        self.OperationState,
-                        self.StartSubscriptions,
-                        self.PauseSubscriptions,
-                        self.StateHandlers,
-                        ImmutableList<ProgressModel<T>>.Empty,
-                        self.CurrentSubOperation
-                    );
+            return new ProgressModel<T>(self, ImmutableList<ProgressModel<T>>.Empty);
+        }
+
+        public static ProgressModel<T> WithProgress<T>(this ProgressModel<T> self, double progress)
+            where T : IConvertible
+        {
+            return new ProgressModel<T>(self, progress);
         }
 
         public static double? Speed<T>(this ProgressModel<T> self)
@@ -304,13 +183,13 @@ namespace Components
             {
                 if (state.OperationState == OperationState.Started)
                 {
-                    var previous = state.PassedStates.LastOrDefault();
+                    
 
-                    if (previous == null || state.Progress <= previous.Progress)
+                    if (!state.PassedStates.Any() || state.Progress <= state.PassedStates.Last().Progress)
                     {
                         return acc;
                     }
-
+                    var previous = state.PassedStates.Last();
                     return acc.Add((state.Progress - previous.Progress) / (state.Time - previous.Time).TotalMilliseconds);
                 }
 
@@ -365,7 +244,7 @@ namespace Components
         public static double Percent<T>(this ProgressModel<T> self)
             where T : IConvertible
         {
-            if (self.Progress == 0)
+            if (self.Progress <= 0)
             {
                 return 0;
             }

@@ -23,12 +23,12 @@ namespace Components
 
         public ProgressViewModel(ProgressConfig<T> config)
         {
-            var model = ProgressModel<T>
-                .Create(config)
-                .WithStart(((e) => Started += e, (e) => Started -= e))
-                .WithCancel(((e) => Canceled += e, (e) => Canceled -= e))
-                .WithStateChangedHandler(HandleState)
-                .Bind();
+            var model = ProgressModel<T>.Create(
+                config,
+                ((e) => Started += e, (e) => Started -= e),
+                ((e) => Canceled += e, (e) => Canceled -= e),
+                HandleState
+            ).Bind();
 
             this.HandleState(model);
         }
@@ -37,7 +37,7 @@ namespace Components
         public event PropertyChangedEventHandler? PropertyChanged;
 
         public ICommand StartCommand => new Command((_) =>
-        {
+        {  
             if (this.State == OperationState.Started)
             {
                 this.Canceled?.Invoke();
