@@ -6,6 +6,7 @@
         xmlns:local="clr-namespace:LoaderSample"
         xmlns:components="clr-namespace:Components;assembly=Components"
         mc:Ignorable="d"
+        x:Name="Self"
         Loaded="MainWindow_OnLoaded"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
@@ -13,6 +14,12 @@
             <ColumnDefinition Width="Auto"></ColumnDefinition>
             <ColumnDefinition Width="*"></ColumnDefinition>
         </Grid.ColumnDefinitions>
-        <components:Progress Foreground="Blue" x:Name="Progress" ShowButtonOnFinish="True" FinishedText="Finished!" />
+        <components:Progress 
+            Foreground="Blue" 
+            x:Name="Progress" 
+            ShowButtonOnFinish="True" 
+            FinishedText="Finished!"
+            FinishButtonText="RESTART"
+            FinishButtonCommand="{Binding ElementName=Self, Path=RestartCommand}"/>
     </Grid>
 </Window>

@@ -5,6 +5,7 @@ namespace Components
     using System;
     using System.Runtime.CompilerServices;
     using System.Windows.Input;
+    using System.Windows.Threading;
     using Infra;
 
     public class ProgressViewModel<T> : INotifyPropertyChanged
@@ -145,39 +146,42 @@ namespace Components
 
         private void HandleState(ProgressModel<T> model)
         {
-            this.SubOperationRunning = false;
-            this.ShowProgressInfo = model.Progress > 0;
-            this.State = model.OperationState;
-            this.ShowTime = true;
-            this.Value = model.Percent();
-
-            switch (model.OperationState)
+            Dispatcher.CurrentDispatcher.Invoke(() =>
             {
-                case OperationState.Started:
-                    if (model.CurrentSubOperation == null)
-                    {
-                        this.Progress = $"{model.ConvertedProgress()}/{model.ConvertedFinishValue()}";
-                        this.Speed = model.ConvertedSpeed();
-                        this.Time = model.ConvertedTime();
-                        this.Title = model.Config.Title;
-                    }
-                    else
-                    {
-                        this.Value = 0;
+                this.SubOperationRunning = false;
+                this.ShowProgressInfo = model.Progress > 0;
+                this.State = model.OperationState;
+                this.ShowTime = true;
+                this.Value = model.Percent();
+
+                switch (model.OperationState)
+                {
+                    case OperationState.Started:
+                        if (model.CurrentSubOperation == null)
+                        {
+                            this.Progress = $"{model.ConvertedProgress()}/{model.ConvertedFinishValue()}";
+                            this.Speed = model.ConvertedSpeed();
+                            this.Time = model.ConvertedTime();
+                            this.Title = model.Config.Title;
+                        }
+                        else
+                        {
+                            this.Value = 0;
+                            this.ShowTime = false;
+                            this.Title = model.CurrentSubOperation.Title;
+                            this.SubOperationRunning = true;
+                            this.ShowProgressInfo = !model.CurrentSubOperation.HideWholeProgress && model.Progress > 0;
+                        }
+                        return;
+                    case OperationState.Finished:
                         this.ShowTime = false;
-                        this.Title = model.CurrentSubOperation.Title;
-                        this.SubOperationRunning = true;
-                        this.ShowProgressInfo = !model.CurrentSubOperation.HideWholeProgress && model.Progress > 0;
-                    }
-                    return;
-                case OperationState.Finished:
-                    this.ShowTime = false;
-                    return;
-                case OperationState.Paused:
-                    return;
-                case OperationState.Initial:
-                    return;
-            }
+                        return;
+                    case OperationState.Paused:
+                        return;
+                    case OperationState.Initial:
+                        return;
+                }
+            });
         }
 
         private event Action? Started;

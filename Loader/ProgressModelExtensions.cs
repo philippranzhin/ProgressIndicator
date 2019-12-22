@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Components
 {
-    public static class ProgressModelExtensions
+    internal static class ProgressModelExtensions
     {
         public static ProgressModel<T> WithStart<T>(
             this ProgressModel<T> self,
@@ -65,17 +65,17 @@ namespace Components
 
             Action unsubscribeSubOperations = () => { };
 
-            void changeState(ProgressModel<T> model)
+            void ChangeState(ProgressModel<T> model)
             {
-                self.Config.FinishSubscription.unsubscribe(finish);
-                self.Config.PauseSubscription.unsubscribe(pause);
-                self.Config.ProgressSubscription.unsubscribe(progress);
+                self.Config.FinishSubscription.unsubscribe(Finish);
+                self.Config.PauseSubscription.unsubscribe(Pause);
+                self.Config.ProgressSubscription.unsubscribe(Progress);
                 self.PauseSubscriptions.ForEach((s) => s.unsubscribe(self.Config.Pause));
-                self.StartSubscriptions.ForEach((s) => s.unsubscribe(start));
+                self.StartSubscriptions.ForEach((s) => s.unsubscribe(Start));
                 unsubscribeSubOperations();
 
                 var nextState = model
-                    .WithCarrentTime()
+                    .WithCurrentTime()
                     .WithPassedState(self)
                     .Bind();
 
@@ -84,7 +84,7 @@ namespace Components
                 });
             }
 
-            void start()
+            void Start()
             {
                 if (self.OperationState == OperationState.Started)
                 {
@@ -100,73 +100,82 @@ namespace Components
                     : self
                         .WithOperationState(OperationState.Started);
 
-                changeState(startedState);
+                ChangeState(startedState);
 
                 var convertedProgress = (T) Convert.ChangeType(startedState.Progress, typeof(T));
 
                 Task.Run(() => startedState.Config.Start(convertedProgress));
             }
 
-            void pause()
+            void Pause()
             {
                 if (self.OperationState == OperationState.Paused)
                 {
                     return;
                 }
 
-                changeState(self
+                ChangeState(self
                     .WithOperationState(OperationState.Paused)
                     .WithoutSubOperation());
             }
 
-            void finish()
+            void Finish()
             {
                 if (self.OperationState == OperationState.Finished)
                 {
                     return;
                 }
 
-                changeState(self
+                ChangeState(self
                     .WithOperationState(OperationState.Finished)
                     .WithoutSubOperation());
             }
 
-            void progress(T p)
+            void Progress(T p)
             {
-                changeState(self
-                    .WithProgress(self.Progress + p.ToDouble(CultureInfo.CurrentCulture))
-                    .WithoutSubOperation());
+
+                var startedState = self.OperationState == OperationState.Finished
+                    ? self
+                        .WithProgress(p.ToDouble(CultureInfo.CurrentCulture))
+                        .WithOperationState(OperationState.Started)
+                        .WithoutSubOperation()
+                        .WithoutPassedStates()
+                    : self
+                        .WithProgress(self.Progress + p.ToDouble(CultureInfo.CurrentCulture))
+                        .WithoutSubOperation()
+                        .WithOperationState(OperationState.Started);
+
+                ChangeState(startedState);
             }
 
             self.PauseSubscriptions.ForEach((s) => s.subscribe(self.Config.Pause));
-            self.StartSubscriptions.ForEach((s) => s.subscribe(start));
-            self.Config.PauseSubscription.subscribe(pause);
-            self.Config.FinishSubscription.subscribe(finish);
-            self.Config.ProgressSubscription.subscribe(progress);
+            self.StartSubscriptions.ForEach((s) => s.subscribe(Start));
+            self.Config.PauseSubscription.subscribe(Pause);
+            self.Config.FinishSubscription.subscribe(Finish);
+            self.Config.ProgressSubscription.subscribe(Progress);
             self.Config.SubOperations.ForEach((operation) => {
-                void handle()
+                void Handle()
                 {
-                    changeState(ProgressModel<T>.Create(
-                            self.Config,
-                            self.Time,
-                            self.Progress,
-                            self.OperationState,
-                            self.StartSubscriptions,
-                            self.PauseSubscriptions,
-                            self.StateHandlers,
-                            self.PassedStates,
-                            operation
-                        ));
+                    var startedState = self.OperationState == OperationState.Finished
+                        ? self
+                            .WithProgress(0)
+                            .WithOperationState(OperationState.Started)
+                            .WithSubOperation(operation)
+                            .WithoutPassedStates()
+                        : self
+                            .WithSubOperation(operation);
+
+                    ChangeState(startedState);
                 }
                 var old = unsubscribeSubOperations;
 
                 unsubscribeSubOperations = () =>
                 {
                     old();
-                    operation.StartSubscription.unsubscribe(handle);
+                    operation.StartSubscription.unsubscribe(Handle);
                 };
 
-                operation.StartSubscription.subscribe(handle);
+                operation.StartSubscription.subscribe(Handle);
             });
 
             return self;
@@ -204,7 +213,7 @@ namespace Components
                     );
         }
 
-        public static ProgressModel<T> WithCarrentTime<T>(this ProgressModel<T> self)
+        public static ProgressModel<T> WithCurrentTime<T>(this ProgressModel<T> self)
            where T : IConvertible
         {
             return ProgressModel<T>.Create(
@@ -251,6 +260,22 @@ namespace Components
                     );
         }
 
+        public static ProgressModel<T> WithSubOperation<T>(this ProgressModel<T> self, ProgresslessOperation operation)
+            where T : IConvertible
+        {
+            return ProgressModel<T>.Create(
+                self.Config,
+                self.Time,
+                self.Progress,
+                self.OperationState,
+                self.StartSubscriptions,
+                self.PauseSubscriptions,
+                self.StateHandlers,
+                self.PassedStates,
+                operation
+            );
+        }
+
         public static ProgressModel<T> WithoutPassedStates<T>(this ProgressModel<T> self)
            where T : IConvertible
         {
@@ -262,7 +287,8 @@ namespace Components
                         self.StartSubscriptions,
                         self.PauseSubscriptions,
                         self.StateHandlers,
-                        ImmutableList<ProgressModel<T>>.Empty
+                        ImmutableList<ProgressModel<T>>.Empty,
+                        self.CurrentSubOperation
                     );
         }
 
@@ -291,7 +317,7 @@ namespace Components
                 return acc;
             }).TakeLast(3);
 
-            if (speeds.Count() == 0)
+            if (!speeds.Any())
             {
                 return null;
             }

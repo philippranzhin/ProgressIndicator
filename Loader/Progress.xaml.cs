@@ -3,6 +3,7 @@
 namespace Components
 {
     using System.Windows;
+    using System.Windows.Input;
 
     /// <summary>
     /// Interaction logic for Loader.xaml
@@ -17,6 +18,21 @@ namespace Components
                 typeof(Progress),
                 new PropertyMetadata(false)
             );
+
+        public static readonly DependencyProperty FinishButtonCommandProperty
+            = DependencyProperty.Register(
+                "FinishButtonCommand",
+                typeof(ICommand),
+                typeof(Progress));
+
+        public static readonly DependencyProperty FinishButtonTextProperty 
+            = DependencyProperty.Register(
+                "FinishButton",
+                typeof(string),
+                typeof(Progress),
+                new PropertyMetadata("RESTART")
+            );
+
 
         public static readonly DependencyProperty StartTextProperty
             = DependencyProperty.Register(
@@ -74,14 +90,6 @@ namespace Components
                 new PropertyMetadata("CONTINUE")
             );
 
-        public static readonly DependencyProperty RestartTextProperty
-            = DependencyProperty.Register(
-                "RestartText",
-                typeof(string),
-                typeof(Progress),
-                new PropertyMetadata("RESTART")
-            );
-
         public static readonly DependencyProperty FinishedTextProperty
             = DependencyProperty.Register(
                 "FinishedText",
@@ -119,12 +127,6 @@ namespace Components
             set => this.SetValue(ContinueTextProperty, value);
         }
 
-        public string RestartText
-        {
-            get => (string)this.GetValue(RestartTextProperty);
-            set => this.SetValue(RestartTextProperty, value);
-        }
-
         public string FinishedText
         {
             get => (string)this.GetValue(FinishedTextProperty);
@@ -153,6 +155,19 @@ namespace Components
         {
             get => (string)this.GetValue(TimeTextProperty);
             set => this.SetValue(TimeTextProperty, value);
+        }
+
+        public string FinishButtonText
+        {
+            get => (string)this.GetValue(FinishButtonTextProperty);
+            set => this.SetValue(FinishButtonTextProperty, value);
+        }
+
+
+        public ICommand FinishButtonCommand
+        {
+            get => (ICommand)this.GetValue(FinishButtonCommandProperty);
+            set => this.SetValue(FinishButtonCommandProperty, value);
         }
     }
 }

@@ -86,7 +86,6 @@
             </TextBlock>
         </DockPanel>
         <Button 
-            Command="{Binding StartCommand}" 
             Padding="5 2 5 2" 
             Margin="5" 
             Background="White" 
@@ -102,6 +101,7 @@
                 <Style TargetType="Button">
                     <Setter Property="Foreground" Value="{Binding ElementName=ProgressControl, Path=Foreground}"></Setter>
                     <Setter Property="Content" Value=""/>
+                    <Setter Property="Command" Value="{Binding StartCommand}" />
                     <Setter Property="Visibility" Value="Visible"/>
                     <Style.Triggers>
                         <DataTrigger Binding="{Binding State}" Value="0">
@@ -114,7 +114,8 @@
                             <Setter Property="Content" Value="{Binding ElementName=ProgressControl, Path=ContinueText}" />
                         </DataTrigger>
                         <DataTrigger Binding="{Binding State}" Value="3">
-                            <Setter Property="Content" Value="{Binding ElementName=ProgressControl, Path=RestartText}" />
+                            <Setter Property="Content" Value="{Binding ElementName=ProgressControl, Path=FinishButtonText}" />
+                            <Setter Property="Command" Value="{Binding ElementName=ProgressControl, Path=FinishButtonCommand}" />
                             <Setter Property="Visibility" Value="{Binding ElementName=ProgressControl, Path=ShowButtonOnFinish, Converter={StaticResource BooleanToHiddenConverter}}"></Setter>
                         </DataTrigger>
                     </Style.Triggers>  
