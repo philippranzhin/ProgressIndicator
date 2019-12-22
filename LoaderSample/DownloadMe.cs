@@ -33,17 +33,22 @@
             {
                 //Simulate network delay
                 Task.Delay(this._random.Next(1000 / 20)).Wait();
-                var value = Math.Min(this.TotalBytesToDownload - position, this._random.Next(this._averageSpeedBytesPerSec / 20));
+                var value = Math.Min(this.TotalBytesToDownload - position,
+                    this._random.Next(this._averageSpeedBytesPerSec / 20));
                 position += value;
                 this.OnProgress(value);
             }
+
             if (!cancellationToken.IsCancellationRequested)
                 this.Finish();
             else
                 this.Paused?.Invoke();
         }
 
-        private void OnProgress(int increment) => this.BytesReceived?.Invoke(increment);
+        private void OnProgress(int increment)
+        {
+            this.BytesReceived?.Invoke(increment);
+        }
 
         //Simulate finalizing like checking hash, saving to disk etc...
         private void Finish()

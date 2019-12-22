@@ -7,8 +7,7 @@
     using System.Windows.Threading;
     using Infra;
 
-    public class ProgressViewModel<T> : INotifyPropertyChanged
-        where T : IConvertible
+    public class ProgressViewModel<T> : INotifyPropertyChanged where T : IConvertible
     {
         private double _value = 0;
         private string? _progress;
@@ -23,12 +22,8 @@
 
         public ProgressViewModel(ProgressConfig<T> config)
         {
-            var model = ProgressModel<T>.Create(
-                config,
-                ((e) => this.Started += e, (e) => this.Started -= e),
-                ((e) => this.Canceled += e, (e) => this.Canceled -= e), 
-                this.HandleState
-            ).Bind();
+            var model = ProgressModel<T>.Create(config, ((e) => this.Started += e, (e) => this.Started -= e),
+                ((e) => this.Canceled += e, (e) => this.Canceled -= e), this.HandleState).Bind();
 
             this.HandleState(model);
         }
@@ -37,7 +32,7 @@
         public event PropertyChangedEventHandler? PropertyChanged;
 
         public ICommand StartCommand => new Command((_) =>
-        {  
+        {
             if (this.State == OperationState.Started)
             {
                 this.CanPause = false;

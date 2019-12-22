@@ -13,7 +13,11 @@ namespace Components
         /// <param name="title">Operation title. Will be displayed at the top of progress bar while this operation running.</param>
         /// <param name="startSubscription">The pair of actions which can subscribe and unsubscribe the control to a start operation event.</param>
         /// <param name="hideWholeProgress">Value, indicating whether information row under progress bar should be hidden.</param>
-        public ProgresslessOperation(string title, (Action<Action> subscribe, Action<Action> unsubscribe) startSubscription, bool hideWholeProgress = true)
+        public ProgresslessOperation(
+            string title,
+            (Action<Action> subscribe, Action<Action> unsubscribe) startSubscription,
+            bool hideWholeProgress = true
+        )
         {
             this.Title = title;
 
@@ -31,7 +35,7 @@ namespace Components
         /// Gets a value, indicating whether information row under progress bar should be hidden.
         /// </summary>
         public bool HideWholeProgress { get; }
- 
+
         internal (Action<Action> subscribe, Action<Action> unsubscribe) StartSubscription { get; }
     }
 }

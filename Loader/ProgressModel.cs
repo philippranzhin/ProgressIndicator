@@ -14,7 +14,8 @@ namespace Components
             (Action<Action> subscribe, Action<Action> unsubscribe) pauseSubscription,
             Action<ProgressModel<T>> stateHandler,
             ImmutableList<double> instantSpeeds,
-            ProgresslessOperation? currentSubOperation = null)
+            ProgresslessOperation? currentSubOperation = null
+        )
         {
             this.Config = config;
             this.Time = time;
@@ -28,7 +29,7 @@ namespace Components
         }
 
         internal ProgressModel(ProgressModel<T> model, ProgresslessOperation? currentSubOperation)
-        { 
+        {
             this = model;
             this.CurrentSubOperation = currentSubOperation;
         }
@@ -79,18 +80,11 @@ namespace Components
             ProgressConfig<TP> operation,
             (Action<Action> subscribe, Action<Action> unsubscribe) startSubscription,
             (Action<Action> subscribe, Action<Action> unsubscribe) pauseSubscription,
-            Action<ProgressModel<TP>> stateHandler)
-             where TP : IConvertible
+            Action<ProgressModel<TP>> stateHandler
+        ) where TP : IConvertible
         {
-            return new ProgressModel<TP>(
-                operation,
-                DateTime.Now, 
-                0, 
-                OperationState.Initial,
-                startSubscription,
-                pauseSubscription,
-                stateHandler,
-                ImmutableList<double>.Empty);
+            return new ProgressModel<TP>(operation, DateTime.Now, 0, OperationState.Initial, startSubscription,
+                pauseSubscription, stateHandler, ImmutableList<double>.Empty);
         }
     }
 }

@@ -31,12 +31,13 @@ namespace Components
             Action pause,
             (Action<Action<T>> subscribe, Action<Action<T>> unsubscribe) progressSubscription,
             (Action<Action> subscribe, Action<Action> unsubscribe) finishSubscription,
-            (Action<Action> subscribe, Action<Action> unsubscribe) pauseSubscription)
+            (Action<Action> subscribe, Action<Action> unsubscribe) pauseSubscription
+        )
         {
             this.Start = start;
             this.Pause = pause;
             this.Title = title;
-            this.FinishValue = (double)Convert.ChangeType(finishValue, typeof(double));
+            this.FinishValue = (double) Convert.ChangeType(finishValue, typeof(double));
 
             this.ProgressSubscription = progressSubscription;
             this.FinishSubscription = finishSubscription;
@@ -46,12 +47,9 @@ namespace Components
             this.ProgressConverter = (e) => e.ToString(CultureInfo.InvariantCulture);
             this.TimeConverter = (e) =>
             {
-                if (e == null)
-                {
-                    return string.Empty;
-                }
+                if (e == null) return string.Empty;
 
-                return ((TimeSpan)e).ToString(@"m\:s");
+                return ((TimeSpan) e).ToString(@"m\:s");
             };
 
             this.SubOperations = ImmutableList<ProgresslessOperation>.Empty;
@@ -62,7 +60,7 @@ namespace Components
             this = config;
             this.SubOperations = this.SubOperations.Add(operation);
         }
-        
+
         private ProgressConfig(ProgressConfig<T> config, Func<double, string> speedConverter)
         {
             this = config;
@@ -72,7 +70,7 @@ namespace Components
         private ProgressConfig(ProgressConfig<T> config, Func<T, string> progressConverter)
         {
             this = config;
-            this.ProgressConverter = progressConverter; 
+            this.ProgressConverter = progressConverter;
         }
 
         private ProgressConfig(ProgressConfig<T> config, Func<TimeSpan?, string> timeConverter)
