@@ -1,7 +1,6 @@
-﻿using System.Windows;
-
-namespace LoaderSample
+﻿namespace LoaderSample
 {
+    using System.Windows;
     using System;
     using System.Threading;
     using System.Threading.Tasks;

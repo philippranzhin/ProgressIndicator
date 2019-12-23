@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Immutable;
-
-namespace Components
+﻿namespace Components
 {
+    using System;
+    using System.Collections.Immutable;
     using System.Globalization;
 
     /// <summary>

@@ -1,7 +1,7 @@
-﻿using System;
-
-namespace Components
+﻿namespace Components
 {
+    using System;
+
     /// <summary>
     /// Describes progressless operation config.
     /// </summary>

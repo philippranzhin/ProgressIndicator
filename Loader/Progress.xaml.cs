@@ -63,7 +63,7 @@ namespace Components
         public static readonly DependencyProperty ProgressColorProperty =
             DependencyProperty.Register("ProgressColor",
                 typeof(Brush), typeof(Progress),
-                new PropertyMetadata(new SolidColorBrush(Colors.Green)));
+                new PropertyMetadata(new SolidColorBrush(Colors.Red)));
 
         public static readonly DependencyProperty ProgressBackgroundColorProperty =
             DependencyProperty.Register("ProgressBackgroundColor",

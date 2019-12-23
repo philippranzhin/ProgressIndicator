@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Immutable;
-using System.Globalization;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace Components
+﻿namespace Components
 {
+    using System;
+    using System.Collections.Immutable;
+    using System.Globalization;
+    using System.Linq;
+    using System.Threading.Tasks;
+
     internal static class ProgressModelExtensions
     {
         private const int InstantSpeedMaxCount = 200;
@@ -123,7 +123,10 @@ namespace Components
 
             var countToCalculateSpeed = (int) (10 * ((double) count / 100));
 
-            return self.InstantSpeeds.TakeLast(countToCalculateSpeed).OrderBy((s) => s)
+            return self
+                .InstantSpeeds
+                .TakeLast(countToCalculateSpeed)
+                .OrderBy((s) => s)
                 .ElementAt(countToCalculateSpeed / 2);
         }
 
@@ -134,11 +137,12 @@ namespace Components
             return self.InstantSpeeds.Average();
         }
 
-        public static string ConvertedAverageSpeed<T>(this ProgressModel<T> self) where T : IConvertible
+        public static string ConvertedAverageSpeed<T>(this ProgressModel<T> self)
+            where T : IConvertible
         {
             var speed = self.Speed();
 
-            return speed == null ? string.Empty : self.Config.SpeedConverter((double)speed);
+            return speed == null ? string.Empty : self.Config.SpeedConverter((double) speed);
         }
 
         public static string ConvertedSpeed<T>(this ProgressModel<T> self) where T : IConvertible
@@ -153,7 +157,8 @@ namespace Components
             return self.Config.ProgressConverter((T) Convert.ChangeType(self.Progress, typeof(T)));
         }
 
-        public static string ConvertedFinishValue<T>(this ProgressModel<T> self) where T : IConvertible
+        public static string ConvertedFinishValue<T>(this ProgressModel<T> self)
+            where T : IConvertible
         {
             return self.Config.ProgressConverter((T) Convert.ChangeType(self.Config.FinishValue, typeof(T)));
         }
@@ -167,7 +172,8 @@ namespace Components
         {
             var speed = self.Speed();
             if (speed != null)
-                return TimeSpan.FromMilliseconds((self.Config.FinishValue - self.Progress) / (double) speed);
+                return TimeSpan.FromMilliseconds((self.Config.FinishValue - self.Progress) /
+                                                 (double) speed);
             return null;
         }
 
@@ -179,18 +185,25 @@ namespace Components
         }
 
 
-        public static ProgressModel<T> WithOperationState<T>(this ProgressModel<T> self, OperationState state)
+        public static ProgressModel<T> WithOperationState<T>(
+            this ProgressModel<T> self,
+            OperationState state
+        )
             where T : IConvertible
         {
             return new ProgressModel<T>(self, state);
         }
 
-        public static ProgressModel<T> WithCurrentTime<T>(this ProgressModel<T> self) where T : IConvertible
+        public static ProgressModel<T> WithCurrentTime<T>(this ProgressModel<T> self)
+            where T : IConvertible
         {
             return new ProgressModel<T>(self, DateTime.Now);
         }
 
-        public static ProgressModel<T> WithInstantSpeed<T>(this ProgressModel<T> self, ProgressModel<T>? previous)
+        public static ProgressModel<T> WithInstantSpeed<T>(
+            this ProgressModel<T> self,
+            ProgressModel<T>? previous
+        )
             where T : IConvertible
         {
             var cannotCalculateSpeed = previous == null
@@ -214,18 +227,23 @@ namespace Components
             }
         }
 
-        public static ProgressModel<T> WithoutSubOperation<T>(this ProgressModel<T> self) where T : IConvertible
+        public static ProgressModel<T> WithoutSubOperation<T>(this ProgressModel<T> self)
+            where T : IConvertible
         {
             return new ProgressModel<T>(self, (ProgresslessOperation?) null);
         }
 
-        public static ProgressModel<T> WithSubOperation<T>(this ProgressModel<T> self, ProgresslessOperation operation)
+        public static ProgressModel<T> WithSubOperation<T>(
+            this ProgressModel<T> self,
+            ProgresslessOperation operation
+        )
             where T : IConvertible
         {
             return new ProgressModel<T>(self, operation);
         }
 
-        public static ProgressModel<T> WithoutInstantSpeeds<T>(this ProgressModel<T> self) where T : IConvertible
+        public static ProgressModel<T> WithoutInstantSpeeds<T>(this ProgressModel<T> self)
+            where T : IConvertible
         {
             return new ProgressModel<T>(self, ImmutableList<double>.Empty);
         }

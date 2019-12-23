@@ -22,12 +22,16 @@
 
         public ProgressViewModel(ProgressConfig<T> config)
         {
-            var model = ProgressModel<T>.Create(config, ((e) => this.Started += e, (e) => this.Started -= e),
-                ((e) => this.Canceled += e, (e) => this.Canceled -= e), this.HandleState).Bind();
+            var model = ProgressModel<T>
+                .Create(
+                    config, 
+                    ((e) => this.Started += e, (e) => this.Started -= e),
+                    ((e) => this.Canceled += e, (e) => this.Canceled -= e), 
+                    this.HandleState)
+                .Bind();
 
             this.HandleState(model);
         }
-
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
