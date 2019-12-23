@@ -121,7 +121,24 @@ namespace Components
 
             if (count < 40) return self.InstantSpeeds.TakeLast(3).Average();
 
-            return self.InstantSpeeds.TakeLast((int) (10 * ((double) count / 100))).Average();
+            var countToCalculateSpeed = (int) (10 * ((double) count / 100));
+
+            return self.InstantSpeeds.TakeLast(countToCalculateSpeed).OrderBy((s) => s)
+                .ElementAt(countToCalculateSpeed / 2);
+        }
+
+        public static double? AverageSpeed<T>(this ProgressModel<T> self) where T : IConvertible
+        {
+            if (self.InstantSpeeds.IsEmpty) return null;
+
+            return self.InstantSpeeds.Average();
+        }
+
+        public static string ConvertedAverageSpeed<T>(this ProgressModel<T> self) where T : IConvertible
+        {
+            var speed = self.Speed();
+
+            return speed == null ? string.Empty : self.Config.SpeedConverter((double)speed);
         }
 
         public static string ConvertedSpeed<T>(this ProgressModel<T> self) where T : IConvertible

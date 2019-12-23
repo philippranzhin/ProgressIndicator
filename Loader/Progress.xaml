@@ -84,10 +84,9 @@
                 DockPanel.Dock="Top"
                 Visibility="{Binding ShowProgressInfo, Converter={StaticResource BooleanToHiddenConverter}}">
                 <Run Text="{Binding ElementName=ProgressControl, Path=DownloadedText}" />
-                <Run Text="{Binding Progress}" />
-                ,<Run Text="{Binding ElementName=ProgressControl, Path=SpeedText}" />
-                <Run Text="{Binding Speed}" />
-                <TextBlock Text="," Visibility="{Binding ShowTime, Converter={StaticResource BooleanToHiddenConverter}}" />
+                <Run Text="{Binding Progress}" />,
+                <Run Text="{Binding ElementName=ProgressControl, Path=SpeedText}" />
+                <Run Text="{Binding Speed}" /><TextBlock Text="," Visibility="{Binding ShowTime, Converter={StaticResource BooleanToHiddenConverter}}" />
                 <TextBlock Text="{Binding ElementName=ProgressControl, Path=TimeText}" Visibility="{Binding ShowTime, Converter={StaticResource BooleanToHiddenConverter}}" />
                 <TextBlock Text="{Binding Time}" Visibility="{Binding ShowTime, Converter={StaticResource BooleanToHiddenConverter}}" />
             </TextBlock>
@@ -97,17 +96,17 @@
             Padding="5,2,5,2"
             HorizontalAlignment="Right"
             VerticalAlignment="Top"
-            Background="White"
             IsEnabled="{Binding CanPause}">
             <Button.Resources>
                 <Style TargetType="Border">
                     <Setter Property="CornerRadius" Value="3" />
+                    <Setter Property="BorderBrush" Value="{Binding ElementName=ProgressControl, Path=Foreground}" />
                 </Style>
             </Button.Resources>
             <Button.Style>
-
                 <Style TargetType="Button">
                     <Setter Property="Foreground" Value="{Binding ElementName=ProgressControl, Path=Foreground}" />
+                    <Setter Property="Background" Value="{Binding ElementName=ProgressControl, Path=Background}" />
                     <Setter Property="Content" Value="" />
                     <Setter Property="Command" Value="{Binding StartCommand}" />
                     <Setter Property="Visibility" Value="Visible" />

@@ -20,6 +20,11 @@
             FinishButtonCommand="{Binding ElementName=Self, Path=RestartCommand}"
             FinishButtonText="RESTART"
             FinishedText="Finished!"
+            DisabledProgressColor="{DynamicResource LightTextColor}"
+            Foreground="{DynamicResource GeneralTextColor}"
+            ForegroundLightColor="{DynamicResource LightTextColor}"
+            ProgressBackgroundColor="{DynamicResource BoxColor}"
+            ProgressColor="{DynamicResource ProgressColor}"
             ShowButtonOnFinish="True" />
     </Grid>
 </Window>

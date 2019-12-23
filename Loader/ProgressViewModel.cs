@@ -182,6 +182,8 @@
 
                         return;
                     case OperationState.Finished:
+                        this.Progress = $"{model.ConvertedProgress()}";
+                        this.Speed = model.ConvertedAverageSpeed();
                         this.ShowTime = false;
                         return;
                     default: return;

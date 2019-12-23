@@ -35,7 +35,7 @@ namespace LoaderSample
             }
 
             var operation = new ProgressConfig<int>(
-                    "Process",
+                    "Downloading...",
                     mock.TotalBytesToDownload,
                     this._start,
                     pause,
@@ -44,11 +44,11 @@ namespace LoaderSample
                     ((e) => mock.Paused += e, (e) => mock.Paused -= e))
                 .WithSpeedConverter((e) => $"{e / 1000:0.0}mb/s")
                 .WithProgressConverter((e) => $"{(double) e / 1_000_000:0.0}mb")
-                .WithSubOperation(new ProgresslessOperation("Connecting",
+                .WithSubOperation(new ProgresslessOperation("Connecting...",
                     ((e) => mock.Connecting += e, (e) => mock.Connecting -= e)))
                 .WithSubOperation(new ProgresslessOperation("Connected",
                     ((e) => mock.Connected += e, (e) => mock.Connected -= e)))
-                .WithSubOperation(new ProgresslessOperation("Finishing",
+                .WithSubOperation(new ProgresslessOperation("Finishing...",
                     ((e) => mock.Finishing += e, (e) => mock.Finishing -= e), false));
 
             this.Progress.DataContext = new ProgressViewModel<int>(operation);
