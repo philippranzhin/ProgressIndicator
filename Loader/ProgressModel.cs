@@ -83,9 +83,15 @@
             Action<ProgressModel<TP>> stateHandler
         ) where TP : IConvertible
         {
-            return new ProgressModel<TP>(operation, DateTime.Now, 0, OperationState.Initial,
+            return new ProgressModel<TP>(
+                operation,
+                DateTime.Now,
+                0,
+                OperationState.Initial,
                 startSubscription,
-                pauseSubscription, stateHandler, ImmutableList<double>.Empty);
+                pauseSubscription,
+                stateHandler,
+                ImmutableList<double>.Empty);
         }
     }
 }
