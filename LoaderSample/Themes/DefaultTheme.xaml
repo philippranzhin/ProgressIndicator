@@ -1,0 +1,11 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:LoaderSample.Themes">
+    <SolidColorBrush x:Key="GeneralTextColor" Color="Black"/>
+    <SolidColorBrush x:Key="LightTextColor" Color="#424242"/>
+    <SolidColorBrush x:Key="PrimaryColor" Color="DodgerBlue"/>
+    <SolidColorBrush x:Key="AccentColor" Color="DodgerBlue"/>
+    <SolidColorBrush x:Key="BackgroundColor" Color="White"/>
+    <SolidColorBrush x:Key="ProgressColor" Color="#2FC30B"/>
+    <SolidColorBrush x:Key="BoxColor" Color="#F5F5F5"/>
+</ResourceDictionary>

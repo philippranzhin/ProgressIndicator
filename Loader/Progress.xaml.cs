@@ -11,30 +11,6 @@ namespace Components
     /// </summary>
     public partial class Progress : UserControl
     {
-        private static readonly DependencyPropertyKey DisabledProgressBrushPropertyKey
-            = DependencyProperty.RegisterReadOnly(
-                "DisabledProgressBrush",
-                typeof(Brush), typeof(Progress),
-                new FrameworkPropertyMetadata(Brushes.Black, FrameworkPropertyMetadataOptions.None));
-
-        private static readonly DependencyPropertyKey ForegroundLightBrushPropertyKey
-            = DependencyProperty.RegisterReadOnly(
-                "ForegroundLightBrush",
-                typeof(Brush), typeof(Progress),
-                new FrameworkPropertyMetadata(Brushes.DimGray, FrameworkPropertyMetadataOptions.None));
-
-        private static readonly DependencyPropertyKey ProgressBackgroundBrushPropertyKey
-            = DependencyProperty.RegisterReadOnly(
-                "ProgressBackgroundBrush",
-                typeof(Brush), typeof(Progress),
-                new FrameworkPropertyMetadata(Brushes.LightGray, FrameworkPropertyMetadataOptions.None));
-
-        private static readonly DependencyPropertyKey ProgressBrushPropertyKey
-            = DependencyProperty.RegisterReadOnly(
-                "ProgressBrush",
-                typeof(Brush), typeof(Progress),
-                new FrameworkPropertyMetadata(Brushes.Green, FrameworkPropertyMetadataOptions.None));
-
         public static readonly DependencyProperty ShowButtonOnFinishProperty =
             DependencyProperty.Register("ShowButtonOnFinish", typeof(bool),
                 typeof(Progress),
@@ -86,31 +62,23 @@ namespace Components
 
         public static readonly DependencyProperty ProgressColorProperty =
             DependencyProperty.Register("ProgressColor",
-                typeof(Color), typeof(Progress),
-                new PropertyMetadata(Colors.Green, ProgressColorChanged));
+                typeof(Brush), typeof(Progress),
+                new PropertyMetadata(new SolidColorBrush(Colors.Green)));
 
         public static readonly DependencyProperty ProgressBackgroundColorProperty =
             DependencyProperty.Register("ProgressBackgroundColor",
-                typeof(Color), typeof(Progress),
-                new PropertyMetadata(Colors.GhostWhite, ProgressBackgroundColorChanged));
+                typeof(Brush), typeof(Progress),
+                new PropertyMetadata(new SolidColorBrush(Colors.GhostWhite)));
 
         public static readonly DependencyProperty DisabledProgressColorProperty =
             DependencyProperty.Register("DisabledProgressColor",
-                typeof(Color), typeof(Progress),
-                new PropertyMetadata(Colors.Black, DisabledProgressColorChanged));
+                typeof(Brush), typeof(Progress),
+                new PropertyMetadata(new SolidColorBrush(Colors.DimGray)));
 
         public static readonly DependencyProperty ForegroundLightColorProperty =
             DependencyProperty.Register("ForegroundLightColor",
-                typeof(Color), typeof(Progress),
-                new PropertyMetadata(Colors.Gray, ForegroundLightColorChanged));
-
-        public static readonly DependencyProperty DisabledProgressBrushProperty = DisabledProgressBrushPropertyKey.DependencyProperty;
-
-        public static readonly DependencyProperty ForegroundLightBrushProperty = ForegroundLightBrushPropertyKey.DependencyProperty;
-
-        public static readonly DependencyProperty ProgressBackgroundBrushProperty = ProgressBackgroundBrushPropertyKey.DependencyProperty;
-
-        public static readonly DependencyProperty ProgressBrushProperty = ProgressBrushPropertyKey.DependencyProperty;
+                typeof(Brush), typeof(Progress),
+                new PropertyMetadata(new SolidColorBrush(Colors.Gray)));
 
         public Progress()
         {
@@ -183,74 +151,28 @@ namespace Components
             set => this.SetValue(FinishButtonCommandProperty, value);
         }
 
-        public Color ProgressColor
+        public Brush ProgressColor
         {
-            get => (Color) this.GetValue(ProgressColorProperty);
+            get => (Brush) this.GetValue(ProgressColorProperty);
             set => this.SetValue(ProgressColorProperty, value);
         }
 
-        public Color ProgressBackgroundColor
+        public Brush ProgressBackgroundColor
         {
-            get => (Color)this.GetValue(ProgressBackgroundColorProperty);
+            get => (Brush)this.GetValue(ProgressBackgroundColorProperty);
             set => this.SetValue(ProgressBackgroundColorProperty, value);
         }
 
-        public Color DisabledProgressColor
+        public Brush DisabledProgressColor
         {
-            get => (Color)this.GetValue(DisabledProgressColorProperty);
+            get => (Brush)this.GetValue(DisabledProgressColorProperty);
             set => this.SetValue(DisabledProgressColorProperty, value);
         }
 
-        public Color ForegroundLightColor
+        public Brush ForegroundLightColor
         {
-            get => (Color)this.GetValue(ForegroundLightColorProperty);
+            get => (Brush)this.GetValue(ForegroundLightColorProperty);
             set => this.SetValue(ForegroundLightColorProperty, value);
         }
-
-        internal Brush DisabledProgressBrush
-        {
-            get => (Brush)GetValue(DisabledProgressBrushProperty);
-            private set => this.SetValue(DisabledProgressBrushPropertyKey, value);
-        }
-
-        internal Brush ForegroundLightBrush
-        {
-            get => (Brush)this.GetValue(ForegroundLightBrushProperty);
-            private set => this.SetValue(ForegroundLightBrushPropertyKey, value);
-        }
-
-        internal Brush ProgressBackgroundBrush
-        {
-            get => (Brush)this.GetValue(ProgressBackgroundBrushProperty);
-            private set => this.SetValue(ProgressBackgroundBrushPropertyKey, value);
-        }
-
-        internal Brush ProgressBrush
-        {
-            get => (Brush)this.GetValue(ProgressBrushProperty);
-            private set => this.SetValue(ProgressBrushPropertyKey, value);
-        }
-
-
-        private static void DisabledProgressColorChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            ((Progress) d).DisabledProgressBrush = new SolidColorBrush((Color)e.NewValue);
-        }
-
-        private static void ForegroundLightColorChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            ((Progress)d).ForegroundLightBrush = new SolidColorBrush((Color)e.NewValue);
-        }
-
-        private static void ProgressBackgroundColorChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            ((Progress)d).ProgressBackgroundBrush = new SolidColorBrush((Color)e.NewValue);
-        }
-
-        private static void ProgressColorChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            ((Progress)d).ProgressBrush = new SolidColorBrush((Color)e.NewValue);
-        }
-
     }
 }

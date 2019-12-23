@@ -24,7 +24,7 @@
                                 <Rectangle
                                     x:Name="PART_Indicator"
                                     HorizontalAlignment="Left"
-                                    Fill="{Binding ElementName=ProgressControl, Path=ProgressBrush}" />
+                                    Fill="{Binding ElementName=ProgressControl, Path=ProgressColor}" />
                             </Grid>
                         </Border>
                     </ControlTemplate>
@@ -32,10 +32,10 @@
             </Setter>
             <Style.Triggers>
                 <DataTrigger Binding="{Binding SubOperationRunning}" Value="True">
-                    <Setter Property="Background" Value="{Binding ElementName=ProgressControl, Path=DisabledProgressBrush}" />
+                    <Setter Property="Background" Value="{Binding ElementName=ProgressControl, Path=DisabledProgressColor}" />
                 </DataTrigger>
                 <DataTrigger Binding="{Binding SubOperationRunning}" Value="False">
-                    <Setter Property="Background" Value="{Binding ElementName=ProgressControl, Path=ProgressBackgroundBrush}" />
+                    <Setter Property="Background" Value="{Binding ElementName=ProgressControl, Path=ProgressBackgroundColor}" />
                 </DataTrigger>
             </Style.Triggers>
         </Style>
@@ -79,7 +79,7 @@
                 DockPanel.Dock="Top"
                 Value="{Binding Value}" />
             <TextBlock
-                Foreground="{Binding ElementName=ProgressControl, Path=ForegroundLightBrush}"
+                Foreground="{Binding ElementName=ProgressControl, Path=ForegroundLightColor}"
                 Margin="2"
                 DockPanel.Dock="Top"
                 Visibility="{Binding ShowProgressInfo, Converter={StaticResource BooleanToHiddenConverter}}">
